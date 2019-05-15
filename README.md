@@ -5,4 +5,4 @@ Web ML Demonstrator is a machine learning demonstrator running purely on the cli
 
 ## Testing it
 You can try it it here:
-[http://aiguy.org/webml/experimenter.html|Experimenter]
+[Experimenter|http://aiguy.org/webml/experimenter.html]

@@ -2,6 +2,7 @@ from os import listdir
 from os.path import isfile, isdir
 from pathlib import Path
 
+
 # Scans the main directory and all sub-directories for JS files.
 def scan_files(path):
     print("Starting scan")
@@ -29,6 +30,7 @@ def scan_files(path):
     print("Scan done")
     return files
 
+
 # Combines all JS files into one
 def combine_files(files, output_path, filename, version):
     f = output_path + "/" + filename + "-" + version + ".js"
@@ -46,7 +48,8 @@ def combine_files(files, output_path, filename, version):
                     outfile.write(line)
     print("Done")
 
+
 # Run combiner
 cwd = Path.cwd()
 files = scan_files(str(cwd) + "/js")
-combine_files(files, str(cwd) + "", "webml", "0.38")
+combine_files(files, str(cwd), "webml", "0.38")

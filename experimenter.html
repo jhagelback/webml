@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>Web ML Experimenter</title>
+        <meta name="description" content="Web Machine Learning Experimenter">
+        <link rel="stylesheet" href="style/main.css">
+        <script src="jquery/jquery-1.12.4.min.js"></script>
+        <script src="jquery/jquery.csv-0.71.min.js"></script>
+        <script src="webml-0.38.js"></script>
+    </head>
+    <body onload="javascript:update_exp_settings();show_version();">
+
+        <!-- Header logo -->
+        <center>
+          <table>
+            <tr>
+              <td width="100">&nbsp;</td>
+              <td width="530"><center><img class="round" src="style/logo.png"/></center></td>
+              <td width="100" style="text-align:right;vertical-align: bottom;"><span class="lblue" onclick="javascript:toggle('about');">About</span></td>
+            </tr>
+          </table>
+        </center>
+        <!-- End Header -->
+
+        <br/>
+        <div class="mainmenu">
+            <a href="index.html">Visualizer</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="experimenter.html">Experimenter</a>
+        </div>
+        <br/>
+        
+        <h3 class="f18b">Experimenter</h3>
+        <div class="smalltext">
+          Here you can run machine learning experiments by uploading datasets in csv files and select algorithms to run on the datasets.
+          You can download some example datasets <span class="lblue" onclick="javascript:toggle('download');">here</span>.
+          <center>
+            <div id="download" class="download" style="display:none;">
+              <center>
+                <table>
+                  <tr>
+                    <th class="dark">Dataset</th>
+                    <th class="dark">Description</th>
+                  </tr>
+                  <tr>
+                    <td><a href="data/iris.csv" type="text/csv">iris.csv</a></td>
+                    <td>Read about it at <a href="https://archive.ics.uci.edu/ml/datasets/iris" target="_blank">UCI ML Repository</a></td>
+                  </tr>
+                  <tr>
+                    <td><a href="data/diabetes.csv" type="text/csv">diabetes.csv</a></td>
+                    <td>Read about it at <a href="https://archive.ics.uci.edu/ml/datasets/diabetes" target="_blank">UCI ML Repository</a></td>
+                  </tr>
+                  <tr>
+                    <td><a href="data/spiral.csv" type="text/csv">spiral.csv</a></td>
+                    <td>Syntetic two-dimensional dataset with three spiral arms</td>
+                  </tr>
+                  <tr>
+                    <td><a href="data/circle.csv" type="text/csv">circle.csv</a></td>
+                    <td>Syntetic two-dimensional dataset with a circle inside a square</td>
+                  </tr>
+                </table>
+              </center>
+            </div>
+          </center>
+        </div>
+
+        <div class="smalltext">
+            <br>
+            <table>
+                <tr>
+                    <th width="780" colspan="3" class="dark" title="">Upload Dataset&nbsp;&nbsp;&nbsp;<span class="help" onclick="javascript:toggle('helpupload');">&nbsp;?&nbsp;</span></th>
+                </tr>
+                <tr>
+                    <td width="250">
+                      <input type="file" name="File Upload" id="txtFileUpload" accept=".csv" />
+                    </td>
+                    <td width="300">
+                      Loaded dataset: <span class="blue" id="loaded_data">None</span>
+                    </td>
+                    <td>
+                      <button class="test" onclick="javascript:load_iris();">Try Iris dataset</button>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="smalltext">
+            <br>
+            <table>
+                <tr>
+                    <th width="780" class="dark" title="Select which machine learning algorithm you want to use on the dataset you have selected above">Select Algorithm</th>
+                </tr>
+                <tr>
+                    <td>
+                      <input type="radio" name="sel-cl" value="knn" id="knn" onchange="javascript:update_exp_settings()" checked />
+                      <label for="knn" title="k-Nearest Neighbor">k-NN</label>
+                      &nbsp;&nbsp;
+                      <input type="radio" name="sel-cl" value="linear" id="linear" onchange="javascript:update_exp_settings()"/>
+                      <label for="linear" title="Linear Softmax Regression">Linear Regression</label>
+                      &nbsp;&nbsp;
+                      <input type="radio" name="sel-cl" value="nn" id="nn" onchange="javascript:update_exp_settings()"/>
+                      <label for="nn" title="Neural Network with ReLU hidden units and Softmax activation">Neural Network</label>
+                      &nbsp;&nbsp;
+                      <input type="radio" name="sel-cl" value="dt" id="dt" onchange="javascript:update_exp_settings()"/>
+                      <label for="dt" title="CART decision tree">Decision Tree</label>
+                      &nbsp;&nbsp;
+                      <input type="radio" name="sel-cl" value="rf" id="rf" onchange="javascript:update_exp_settings()"/>
+                      <label for="rf" title="Ensemble of CART decision trees">Random Forest</label>
+                      &nbsp;&nbsp;
+                      <input type="radio" name="sel-cl" value="svm" id="svm" onchange="javascript:update_exp_settings()"/>
+                      <label for="svm" title="Simplified Support Vector Machine with RBF kernel">SVM</label>
+                      &nbsp;&nbsp;
+                      <input type="radio" name="sel-cl" value="nb" id="nb" onchange="javascript:update_exp_settings()"/>
+                      <label for="nb" title="Gaussian Naïve Bayes">Naïve Bayes</label>
+                  </td>
+                </tr>
+            </table>
+        </div>
+
+
+        <div class="smalltext">
+            <br>
+            <table>
+                <tr>
+                    <th width="780" class="dark">Set Hyperparameters&nbsp;&nbsp;&nbsp;<span class="help" onclick="javascript:toggle('helphyper');">&nbsp;?&nbsp;</span></th>
+                </tr>
+                <tr>
+                    <td id="opts"></td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="smalltext">
+            <br>
+            <table>
+                <tr>
+                    <th width="780" colspan="2" class="dark" title="">Data Pre-processing&nbsp;&nbsp;&nbsp;<span class="help" onclick="javascript:toggle('helppre');">&nbsp;?&nbsp;</span></th>
+                </tr>
+                <tr>
+                    <td width="90">
+                      Attributes:
+                    </td>
+                    <td >
+                      <input type="radio" name="preproc-data" value="0" id="preproc-none" />
+                      <label for="preproc-none">No change</label>
+                      &nbsp;&nbsp;
+                      <input type="radio" name="preproc-data" value="1" id="preproc-norm" checked />
+                      <label for="preproc-norm">Normalize</label>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      Shuffle data:
+                    </td>
+                    <td>
+                      <input type="radio" name="shuffle-data" value="0" id="shuffle-none" />
+                      <label for="shuffle-none">None</label>
+                      &nbsp;&nbsp;
+                     <input type="radio" name="shuffle-data" value="1" id="shuffle-rnd" checked />
+                      <label for="shuffle-rnd" title="Data examples are randomly shuffled">Random</label>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="smalltext">
+            <br>
+            <table>
+                <tr>
+                    <th colspan="2" width="780" class="dark" title="">Run Experiment&nbsp;&nbsp;&nbsp;<span class="help" onclick="javascript:toggle('helpexp');">&nbsp;?&nbsp;</span></th>
+                </tr>
+                <tr>
+                    <td width="70">
+                        <button class="enabled" id="demo" onclick="javascript:run_experiment();">&#9658;</button>
+                    </td>
+                    <td>
+                      <input type="radio" name="eval-opt" value="0" id="training-data" />
+                      <label for="training-data">Use training data</label>
+                      &nbsp;&nbsp;
+                      <input type="radio" name="eval-opt" value="1" id="train-test-split" />
+                      <label for="train-test-split">Train-test split (80%/20%)</label>
+                      &nbsp;&nbsp;
+                      <input type="radio" name="eval-opt" value="2" id="cross-validation" checked />
+                      <label for="cross-validation">5-fold Cross-Validation</label>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="smalltext">
+            <br>
+            <table>
+                <tr>
+                    <th width="780" class="dark" title="">Result&nbsp;&nbsp;&nbsp;<span class="help" onclick="javascript:toggle('helpres');">&nbsp;?&nbsp;</span></th>
+                </tr>
+                <tr>
+                    <td>
+                        <div id="result" class="result" style="display:none;"></div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="popup" id="helpres" style="display:none;">
+          <div style='text-align:right;' width='100%'><span class='lred' onclick="toggle('helpres')">Close</span></div>
+          <h3>Accuracy</h3>
+          Accuracy, or classification accuracy, means the fraction of all predicted examples that were correctly predicted. 
+          It is calculated as:<br>
+          &nbsp;&nbsp;<img src='docs/accuracy.png' height='40'><br>
+          Consider the Iris dataset containing 150 examples. If we split the dataset into 80% training and 20% testing, the 
+          test dataset contains 30 examples. If 29 of the 30 examples were correctly predicted, the accuracy is 96.67%.<br><br>
+          Accuracy is a great metric if we have datasets that are reasonably class-balanced, meaning that we have roughly the 
+          same number of examples from each class. This is the case for the Iris dataset which contains 50 examples from each class.<br><br>
+          If a dataset is class-imbalanced, accuracy can give you a false sense of achieving a good result. Consider for example a 
+          spam filtering dataset containing 198 examples of non-spam emails, and 2 examples of spam emails. An accuracy of 99% may seem 
+          very high at first glance, but is actually the same accuracy we would get if we had a model with zero predictive ability only 
+          returning the majority class for all predictions. This zero predictive model is sometimes referred to as ZeroR and can be 
+          used as a baseline for accuracy comparisons.
+
+          <h3>Confusion Matrix</h3>
+          The confusion matrix describes the complete performance of a model. It is a matrix of the following format:<br>
+          
+          <table>   
+            <tr><td></td>
+            <td class='hcm'>Predicted: Yes</td>
+            <td class='hcm'>Predicted: No</td>
+            </tr>
+          <tr><td class='hcm'><center>Actual: Yes</center></td>
+            <td class='cm' style='background:#dfd;'>True Positives (TP)</td>
+            <td class='cm' style='background:#fdd;'>False Positives (FP)</td>
+            </tr>
+            <tr><td class='hcm'>Actual: No</td>
+            <td class='cm' style='background:#fdd;'>False Negatives (FN)</td>
+            <td class='cm' style='background:#dfd;'>True Negatives (TN)</td>
+            </tr>
+            </table>
+
+            <br>There are four important terms:<br><ul>
+            <li><b>True Positives:</b>The cases where the model predicted <span class='blue'>Yes</span> and the actual output was also <span class='blue'>Yes</span>.</li>
+            <li><b>True Negatives:</b>The cases where the model predicted <span class='blue'>No</span> and the actual output was also <span class='blue'>No</span>.</li>
+            <li><b>False Positives:</b>The cases where the model predicted <span class='blue'>Yes</span> but the actual output was <span class='blue'>No</span>.</li>
+          <li><b>False Negatives:</b>The cases where the model predicted <span class='blue'>No</span> but the actual output was <span class='blue'>Yes</span>.</li>
+            </ul>
+
+            The confusion matrix not only tells us how many predictions we got wrong, but also where the errors are. Consider the following confusion matrix when 
+            evaluating a model on the Iris dataset:<br>
+
+            <table><tr><td></td>
+            <td class='hcm'>[0]</td>
+            <td class='hcm'>[1]</td>
+            <td class='hcm'>[2]</td>
+            <td></td></tr>
+            <tr><td class='hcm'>[0]</td>
+            <td class='cm'>50</td><td class='cm'>0</td><td class='cm'>0</td>
+            <td class='lcm'>&#8594; Iris-setosa</td></tr>
+          <tr><td class='hcm'>[1]</td>
+            <td class='cm'>0</td><td class='cm'>48</td><td class='cm'>2</td>
+            <td class='lcm'>&#8594; Iris-versicolor</td></tr>
+          <tr><td class='hcm'>[2]</td>
+            <td class='cm'>0</td><td class='cm'>0</td><td class='cm'>50</td>
+            <td class='lcm'>&#8594; Iris-virginica</td></tr>    
+            </table><br>
+
+            The first row tells us that all 50 examples of <span class='blue'>Iris-setosa</span> were correctly predicted (true positives). The second row tells us that 48 
+            examples of <span class='blue'>Iris-versicolor</span> were correctly predicted (true positives), and that 2 were incorrectly predicted as <span class='blue'>Iris-virginica</span> 
+            (false negatives). The third row tells us that all 50 examples of <span class='blue'>Iris-virginica</span> were also correctly predicted (true positives).<br><br>
+            The third column tells us that for <span class='blue'>Iris-virginica</span>, all 50 actual examples were correctly predicted (true positives) but 2 other examples 
+            were incorrectly predicted as belonging to <span class='blue'>Iris-virginica</span> (false positives). The first and second columns tells us that there are no false 
+            positivies for <span class='blue'>Iris-setosa</span> or <span class='blue'>Iris-versicolor</span>.
+
+            <h3>Precision, Recall and F1 score</h3>
+            From the confusion matrix we can calculate other metrics. F1 score is the harmonic mean between precision and recall. It tells us 
+            how precise a model is (amount of correctly classified examples), but also how robust it is (does not miss many examples). 
+            To calculate F1 score, we first need to calculate precision and recall:<br>
+            <ul>
+            <li><b>Precision:</b> Precision is calculated for each class, and measures how often the model is correct when examples are predicted as belonging to the class. 
+            It is calculated as:<br><img height='40' src='docs/precision.png'><br></li>
+
+            <li><b>Recall: </b> Recall is calculated for each class, and measures what fraction of all examples belonging to the class that were correctly predicted. 
+            It is calculated as:<br><img height='40' src='docs/recall.png'></li></ul><br>
+
+            These can easily be calculated from a confusion matrix. From the example confusion matrix above we can calculate recall for <span class='blue'>Iris-virginica</span> 
+            by dividing the number of true positives in the third row (50) by the sum of that row (50). The recall for <span class='blue'>Iris-virginica</span> is 1.00 (all examples 
+            of <span class='blue'>Iris-virginica</span> are correctly predicted). To calculate precision for <span class='blue'>Iris-virginica</span> 
+            we divide the number of true positives in the third column (50) by the sum of that column (52). The precision for <span class='blue'>Iris-virginica</span> 
+            is 0.96 (some other examples are incorrectly predicted as belonging to <span class='blue'>Iris-virginica</span>).<br><br>
+
+            When we have calculated precision and recall, we can calculate F1 score as:<br>
+            &nbsp;&nbsp;<img height='45' src='docs/f1.png'><br>
+            F1 score is a balance between precision and recall, and is often a better measure of model performance than accuracy.
+            <h3>More reading</h3>
+            <ul>
+              <li>Machine Learning Crash Course: <a href="https://developers.google.com/machine-learning/crash-course/classification/accuracy" target="_blank">Accuracy</a></li>
+              <li>Machine Learning Crash Course: <a href="https://developers.google.com/machine-learning/crash-course/classification/precision-and-recall" target="_blank">Precision and Recall</a></li>
+              <li>Towards Data Science: <a href="https://towardsdatascience.com/metrics-to-evaluate-your-machine-learning-algorithm-f10ba6e38234" target="_blank">Metrics to Evaluate your Machine Learning Algorithm</a></li>
+            </ul>
+        </div>
+
+        <div class="popup" id="helpexp" style="display:none;">
+          <div style='text-align:right;' width='100%'><span class='lred' onclick="toggle('helpexp')">Close</span></div>
+          <h3>Experiment options</h3>
+          When running an experiment on a dataset, there are three options:
+          <ul>
+            <li>Use training data</li>
+            <li>Train-test-split (80%/20%)</li>
+            <li>5-fold Cross-Validation</li>
+          </ul>
+          When <em>Use training data</em> is selected, all examples in the dataset are used for both training and testing of the model.
+          Since we use all data, there is no risk that we miss important patterns in the data when training the model. The problem is that
+          we don't measure the generalization capabilities of the model, i.e. how good the model is at predicting unseen examples. We only
+          measure how effective an algorithm is for mapping input patterns to output patterns.
+          <br><br>
+          The second option is <em>Train-test-split (80%/20%)</em>. In this case we randomly split the dataset into two sets, a training 
+          set containing 80% of the examples and a test set containing 20% of the examples. Since the algorithm is trained on the training 
+          set and evaluated on the test set, we get a measure of the generalization capabilities of the model. Depending on what examples
+          are selected for the test set in the random split, there is however a risk that we miss important patterns in the data when 
+          training the model.
+          <br><Br>
+          The third option is <em>5-fold Cross-Validation</em>. In this case we randomly split the dataset into five subsets of roughly 
+          equal size. The experiment is repeated five times, such that each time a different subset is used for testing and the other
+          subsets are used for training:<br>&nbsp;
+
+          <table>
+            <tr>
+              <td class="cm">1</td><td class="cm">2</td><td class="cm">3</td><td class="cm">4</td><td class="cm">5</td><td></td>
+            </tr>
+            <tr>
+              <td class="cm" style="background:#33f;">&nbsp;</td>
+              <td class="cm" style="background:#bbb;">&nbsp;</td>
+              <td class="cm" style="background:#bbb;">&nbsp;</td>
+              <td class="cm" style="background:#bbb;">&nbsp;</td>
+              <td class="cm" style="background:#bbb;">&nbsp;</td><td>Blue subset is used for testing</td>
+            </tr>
+            <tr>
+              <td class="cm" style="background:#bbb;">&nbsp;</td>
+              <td class="cm" style="background:#33f;">&nbsp;</td>
+              <td class="cm" style="background:#bbb;">&nbsp;</td>
+              <td class="cm" style="background:#bbb;">&nbsp;</td>
+              <td class="cm" style="background:#bbb;">&nbsp;</td><td>Gray subsets are used for training</td>
+            </tr>
+            <tr>
+              <td class="cm" style="background:#bbb;">&nbsp;</td>
+              <td class="cm" style="background:#bbb;">&nbsp;</td>
+              <td class="cm" style="background:#33f;">&nbsp;</td>
+              <td class="cm" style="background:#bbb;">&nbsp;</td>
+              <td class="cm" style="background:#bbb;">&nbsp;</td><td></td>
+            </tr>
+            <tr>
+              <td class="cm" style="background:#bbb;">&nbsp;</td>
+              <td class="cm" style="background:#bbb;">&nbsp;</td>
+              <td class="cm" style="background:#bbb;">&nbsp;</td>
+              <td class="cm" style="background:#33f;">&nbsp;</td>
+              <td class="cm" style="background:#bbb;">&nbsp;</td><td></td>
+            </tr>
+            <tr>
+              <td class="cm" style="background:#bbb;">&nbsp;</td>
+              <td class="cm" style="background:#bbb;">&nbsp;</td>
+              <td class="cm" style="background:#bbb;">&nbsp;</td>
+              <td class="cm" style="background:#bbb;">&nbsp;</td>
+              <td class="cm" style="background:#33f;">&nbsp;</td><td></td>
+            </tr>
+          </table>
+          <br>
+
+          The final result is an average of the results from the five repetitions. When we use cross-validation,
+          we minimize the risk of missing important patterns in the data during training since all examples will be used for training in
+          four of five repetitions. The major drawback of cross-validation is that it is time consuming since we train and evaluate a 
+          model five times. Cross-validation and train-test-split can also be problematic if we have few examples in the dataset.
+          <h3>More reading</h3>
+          <ul>
+            <li>Towards Data Science: <a href="https://towardsdatascience.com/cross-validation-in-machine-learning-72924a69872f" target="_blank">Cross-Validation in Machine Learning</a></li>
+            <li>Machine Learning Mastery: <a href="https://machinelearningmastery.com/what-is-generalization-in-machine-learning/" target="_blank">Why Do Machine Learning Algorithms Work on Data That They Have Not Seen Before?</a></li>
+          </ul>
+        </div>
+
+        <div class="popup" id="helppre" style="display:none;">
+          <div style='text-align:right;' width='100%'><span class='lred' onclick="toggle('helppre')">Close</span></div>
+          <h3>Data normalization</h3>
+          It is quite common that different attributes in the dataset have different range of values. The first attribute can for example
+          have a range from 0 to 1, and the second from -5 to 100. This can lead to neural networks having problems convering to stable
+          solutions since gradients may oscillate back and forth, and it can have a negative effect on many distance functions used in
+          k-Nearest Neighbor. Neural networks also generally prefer smaller attribute values to avoid weights explosion.
+          <br><br>
+          To get around this we can normalize the attribute values by subtracting the mean of the attribute and divide by the standard
+          deviation of the attribute.
+
+          <h3>Data shuffling</h3>
+          Sometimes, the examples in a dataset are ordered on which class they belong to. This is for example the case in the Iris dataset
+          which first contains 50 examples of <span class='blue'>Iris-setosa</span>, then 50 examples of <span class='blue'>Iris-versicolor</span>,
+          and finally 50 examples of <span class='blue'>Iris-virginica</span>.
+          <br><br>
+          This can cause problems for some algorithms, for example neural networks. It is therefore best practice that we always randomly
+          shuffle the dataset before training a model. It is also important that the dataset is shuffled before we do a train-test-split or
+          cross-validation.
+
+          <h3>More reading</h3>
+          <ul>
+            <li>Medium: <a href="https://medium.com/@urvashilluniya/why-data-normalization-is-necessary-for-machine-learning-models-681b65a05029" target="_blank">Why Data Normalization is necessary for Machine Learning models</a></li>
+            <li>Machine Learning Mastery: <a href="https://machinelearningmastery.com/randomness-in-machine-learning/" target="_blank">Embrace Randomness in Machine Learning</a></li>
+          </ul>
+        </div>
+
+        <div class="popup" id="helpupload" style="display:none;">
+          <div style='text-align:right;' width='100%'><span class='lred' onclick="toggle('helpupload')">Close</span></div>
+          <h3>Dataset format</h3>
+          Experimenter supports datasets in csv format. The first line in the file can be a header, but it is not required. The following
+          lines are data examples containing all the attribute values separated by a comma, ending with the class value. Class values can be
+          either integers or strings. Note that Experimenter only supports classification and not regression, so all class values are treated
+          as categorical values. It cannot handle missing attributes, so all examples are required to have the same number of attributes.
+
+          <h3>Example: Iris dataset</h3>
+          The Iris dataset is a very famous dataset in machine learning. The dataset contains 150 examples of Iris flowers, divided into 
+          the three species <span class='blue'>Iris-setosa</span>, <span class='blue'>Iris-versicolor</span>,
+          and <span class='blue'>Iris-virginica</span>. The dataset is balanced with 50 examples of each class.
+          The purpose is to predict which species an example belongs to. There are four numerical attributes: width and height of the petal
+          leaves and width and height of the sepal leaves.<br>
+          <br>
+          &nbsp;&nbsp;<img src="docs/iris.png" height="200"><br>
+          <br>
+          If we open the csv data file in a text editor, the first examples look like this:<br>
+          <br>
+          &nbsp;&nbsp;<img src="docs/iris-data-2.png" height="250"><br>
+          <br>
+          It is easier to get an overview of the dataset if we open it in a spreadsheet application:<br>
+          <br>
+          &nbsp;&nbsp;<img src="docs/iris-data-1.png" height="180"><br>
+          <br>
+          An interesting property of the dataset is that one class is linearly separable from the other two, but the latter two are not
+          linearly separable from each other.
+
+          <h3>Using the Iris dataset</h3>
+          The Iris dataset is built-in in the Experimenter for demonstration purpose. You can simply use it by clicking the
+          <button class="test">Try Iris dataset</button> button.
+
+          <h3>More reading</h3>
+          <ul>
+            <li>UCI Machine Learning Repository: <a href="https://archive.ics.uci.edu/ml/datasets/iris" target="_blank">Iris Data Set</a></li>
+            <li>Medium: <a href="https://medium.com/@jebaseelanravi96/machine-learning-iris-classification-33aa18a4a983" target="_blank">Machine learning-Iris classification</a></li>
+          </ul>
+
+        </div>
+
+        <div class="popup" id="helphyper" style="display:none;">
+          <div style='text-align:right;' width='100%'><span class='lred' onclick="toggle('helphyper')">Close</span></div>
+          <h3>Hyperparameters</h3>
+          Most machine learning algorithms can be tuned for different problems by modifying the values of the algorithm's hyperparameters.
+          A hyperparameter is a model configuration and needs to be set before training the model.
+          <br><br>
+          The problem is that we cannot know the best value for a hyperparameter on a given problem. We can use our experience and rules
+          of thumb to find a good starting point, then search for the best value by trial and error. 
+
+          <h3>More reading</h3>
+          <ul>
+            <li>Machine Learning Mastery: <a href="https://machinelearningmastery.com/difference-between-a-parameter-and-a-hyperparameter/" target="_blank">What is the Difference Between a Parameter and a Hyperparameter?</a></li>
+            <li>Towards Data Science: <a href="https://towardsdatascience.com/hyperparameters-in-deep-learning-927f7b2084dd" target="_blank">Hyperparameters in Deep Learning</a></li>
+          </ul>
+        </div>
+
+        <div class="popup" id="about" style="display:none;">
+          <div style='text-align:right;' width='100%'><span class='lred' onclick="toggle('about')">Close</span></div>
+          <center><img class="round" src="style/logo.png" width="200"/></center>
+          <h3>About Web ML Demonstrator</h3>
+          Web ML Demonstrator is a machine learning demonstrator running purely on the client browser. All algorithms 
+          are implemented in JavaScript for the purpose of this demonstrator. They are not optimized for high performance and don't
+          have all the functionality of state-of-the-art implementations. The main purpose of this demonstrator is to be used as a 
+          tool when teaching and explaining machine learning and machine learning related concepts.
+          <br><br>
+          Web ML Demonstator is developed by Johan Hagelbäck, senior lecturer at Linnaeus University in Kalmar, Sweden. Contact details
+          for the developer is <a href="https://lnu.se/personal/johan.hagelback/" target="_blank">here</a>.<br><br>
+          Library version: <span id="version" style="color:#c00;"></span>
+          <br>&nbsp;
+        </div>
+    </body>
+</html>

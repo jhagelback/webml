@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>Web ML Visualizer</title>
+        <meta name="description" content="Web Machine Learning Visualizer">
+        <link rel="stylesheet" href="style/main.css">
+        <script src="jquery/jquery-1.12.4.min.js"></script>
+        <script src="jquery/jquery.csv-0.71.min.js"></script>
+        <script src="webml-0.38.js"></script>
+    </head>
+    <body onload="init();update_settings();show_labels();show_version();">
+        
+        <!-- Header logo -->
+        <center>
+          <table>
+            <tr>
+              <td width="100">&nbsp;</td>
+              <td width="530"><center><img class="round" src="style/logo.png"/></center></td>
+              <td width="100" style="text-align:right;vertical-align: bottom;"><span class="lblue" onclick="javascript:toggle('about');">About</span></td>
+            </tr>
+          </table>
+        </center>
+        <!-- End Header -->
+
+        <br/>
+        <div class="mainmenu">
+            <a href="index.html">Visualizer</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="experimenter.html">Experimenter</a>
+        </div>
+        <br/>
+        
+        <h3 class="f18b">Visualizer</h3>
+        <div class="smalltext">
+            This is a visualization of how different machine learning algorithms learn decision boundaries between output categories for some different datasets. You can also experiment with how hyperparameter settings affect the learning.
+        </div>
+
+        <div class="smalltext">
+            <br>
+            <table>
+                <tr>
+                    <th width="780" class="dark">Select Dataset&nbsp;&nbsp;&nbsp;<span class="help" onclick="javascript:toggle('helpselect');">&nbsp;?&nbsp;</span></th>
+                </tr>
+                <tr>
+                    <td>
+                      <input type="radio" name="sel-ds" value="spiral" id="spiral" onchange="javascript:show_labels();update_settings()" checked />
+                      <label for="spiral">
+                        <img src="gfx/spiral.png" alt="" width=100/>
+                      </label>
+                      <input type="radio" name="sel-ds" value="flame" id="flame" onchange="javascript:show_labels();update_settings()"/>
+                      <label for="flame">
+                        <img src="gfx/flame.png" alt="" width=100/>
+                      </label>
+                      <input type="radio" name="sel-ds" value="moons" id="moons" onchange="javascript:show_labels();update_settings()"/>
+                      <label for="moons">
+                        <img src="gfx/moons.png" alt="" width=100/>
+                      </label>
+                      <input type="radio" name="sel-ds" value="gaussian" id="gaussian" onchange="javascript:show_labels();update_settings()"/>
+                      <label for="gaussian">
+                        <img src="gfx/gaussian.png" alt="" width=100/>
+                      </label>
+                      <input type="radio" name="sel-ds" value="circle" id="circle" onchange="javascript:show_labels();update_settings()"/>
+                      <label for="circle">
+                        <img src="gfx/circle.png" alt="" width=100/>
+                      </label>
+                      <input type="radio" name="sel-ds" value="aggregation" id="aggregation" onchange="javascript:show_labels();update_settings()"/>
+                      <label for="aggregation">
+                        <img src="gfx/aggregation.png" alt="" width=100/>
+                      </label>
+                  </td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="smalltext">
+            <br>
+            <table>
+                <tr>
+                    <th width="780" class="dark" title="Select which machine learning algorithm you want to use on the dataset you have selected above">Select Algorithm</th>
+                </tr>
+                <tr>
+                    <td>
+                      <input type="radio" name="sel-cl" value="knn" id="knn" onchange="javascript:update_settings()" checked />
+                      <label for="knn" title="k-Nearest Neighbor">k-NN</label>
+                      &nbsp;&nbsp;
+                      <input type="radio" name="sel-cl" value="linear" id="linear" onchange="javascript:update_settings()"/>
+                      <label for="linear" title="Linear Softmax Regression">Linear Regression</label>
+                      &nbsp;&nbsp;
+                      <input type="radio" name="sel-cl" value="nn" id="nn" onchange="javascript:update_settings()"/>
+                      <label for="nn" title="Neural Network with ReLU hidden units and Softmax activation">Neural Network</label>
+                      &nbsp;&nbsp;
+                      <input type="radio" name="sel-cl" value="dt" id="dt" onchange="javascript:update_settings()"/>
+                      <label for="dt" title="CART decision tree">Decision Tree</label>
+                      &nbsp;&nbsp;
+                      <input type="radio" name="sel-cl" value="rf" id="rf" onchange="javascript:update_settings()"/>
+                      <label for="rf" title="Ensemble of CART decision trees">Random Forest</label>
+                      &nbsp;&nbsp;
+                      <input type="radio" name="sel-cl" value="svm" id="svm" onchange="javascript:update_settings()"/>
+                      <label for="svm" title="Simplified Support Vector Machine with RBF kernel">SVM</label>
+                      &nbsp;&nbsp;
+                      <input type="radio" name="sel-cl" value="nb" id="nb" onchange="javascript:update_settings()"/>
+                      <label for="nb" title="Gaussian Naïve Bayes">Naïve Bayes</label>
+                  </td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="smalltext">
+            <br>
+            <table>
+                <tr>
+                    <th width="780" class="dark">Set Hyperparameters&nbsp;&nbsp;&nbsp;<span class="help" onclick="javascript:toggle('helphyper');">&nbsp;?&nbsp;</span></th>
+                </tr>
+                <tr>
+                    <td id="opts"></td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="smalltext">
+            <br>
+            <table>
+                <tr>
+                    <th width="780" colspan="4" class="dark">Visualization&nbsp;&nbsp;&nbsp;<span class="help" onclick="javascript:toggle('helpvis');">&nbsp;?&nbsp;</span></th>
+                </tr>
+                <tr>
+                    <td width="30">
+                        <button class="enabled" id="demo" onclick="javascript:demo();">&#9658;</button>
+                    </td>
+                    <td width="90">
+                        <button class="disabled" id="stop" onclick="javascript:stop_demo();">&#9724;</button>
+                    </td>
+                    <td id="acc" width="300" style="vertical-align: middle;">&nbsp;</td>
+                    <td id="citer" style="vertical-align: middle;">&nbsp;</td>
+                </tr>
+            </table>
+        </div>
+            
+        <br>
+
+        <center>
+        <canvas id="can" width="500" height="500"></canvas>
+        <img id="canvasimg" class="cimg">
+        </center>
+        
+        <div class="popup" id="helpselect" style="display:none;">
+          <div style='text-align:right;' width='100%'><span class='lred' onclick="toggle('helpselect')">Close</span></div>
+          <h3>Dataset selection</h3>
+          Visualizer contains six generated two-dimensional datasets that can be used to demonstrate how different machine learning
+          algorithms learn on different problems. Different algorithms generate decision boundaries (the boundaries separating each
+          class from the other) with different properties. For example, Linear Regression can only learn linear decision boundaries
+          while decision trees generate squares.
+          <br><br>
+          Visualizer can be used to demonstrate the concepts of underfitting and overfitting. Using Linear Regression, Naïve Bayes or
+          Neural Networks with few hidden units (try 4) on the first dataset (the spiral arms) results in low accuracy. The models are
+          not complex enough to learn the mapping between the input patterns and output patterns. Linear Regression can only learn the
+          last dataset properly since the others have classes that are more or less linearly inseparable.
+          <br><br>
+          Overfitting is easily demonstrated using the SVM (Support Vector Machine) algorithm. Try any dataset and a very high Gamma value
+          (>5000) and you will see that each training example is perfectly matched, but the algorithm is unlikely to have good generalization
+          capabilities.
+          <br>&nbsp;
+        </div>
+
+        <div class="popup" id="helpvis" style="display:none;">
+          <div style='text-align:right;' width='100%'><span class='lred' onclick="toggle('helpvis')">Close</span></div>
+          <h3>Visualization</h3>
+          The visualization shows the decision boundaries (the boundaries separating each class from the other) the algorithm has
+          learned on the dataset. For Linear Regression and Neural Networks, the progress on each training iteration is also shown.
+          <br><br>
+          The small circles show the examples in the dataset, and the colored areas show which class each point is predicted as
+          belonging to.
+          <br><br>
+          If the accuracy is low, examples are incorrectly classified. In this case you can easily see that the decision boundaries
+          don't separete the classes well enough. 
+          <br>&nbsp;
+        </div>
+
+        <div class="popup" id="helphyper" style="display:none;">
+          <div style='text-align:right;' width='100%'><span class='lred' onclick="toggle('helphyper')">Close</span></div>
+          <h3>Hyperparameters</h3>
+          The hyperparameters (configurations of the algorithm) are set so each algorithm can learn the dataset as good as possible.
+          You can change the hyperparameters to see how different configurations affect how the algorithm learn on the dataset.
+          <br>&nbsp;
+        </div>
+
+        <div class="popup" id="about" style="display:none;">
+          <div style='text-align:right;' width='100%'><span class='lred' onclick="toggle('about')">Close</span></div>
+          <center><img class="round" src="style/logo.png" width="200"/></center>
+          <h3>About Web ML Demonstrator</h3>
+          Web ML Demonstrator is a machine learning demonstrator running purely on the client browser. All algorithms 
+          are implemented in JavaScript for the purpose of this demonstrator. They are not optimized for high performance and don't
+          have all the functionality of state-of-the-art implementations. The main purpose of this demonstrator is to be used as a 
+          tool when teaching and explaining machine learning and machine learning related concepts.
+          <br><br>
+          Web ML Demonstator is developed by Johan Hagelbäck, senior lecturer at Linnaeus University in Kalmar, Sweden. Contact details
+          for the developer is <a href="https://lnu.se/personal/johan.hagelback/" target="_blank">here</a>.<br><br>
+          Library version: <span id="version" style="color:#c00;"></span>
+          <br>&nbsp;
+        </div>
+    </body>
+</html>

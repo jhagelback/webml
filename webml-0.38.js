@@ -261,6 +261,23 @@ function toggle(id) {
 }
 
 /**
+    Toggles visibility of the element with the specified id and updates 
+    expand arrow.
+*/
+function toggle_bt(id) {
+    let e = document.getElementById(id);
+    let bt = document.getElementById(id + "_bt");
+    if (e.style.display == "none") {
+        e.style.display = "block";
+        bt.innerHTML = "&#9660;";
+    }
+    else {
+        e.style.display = "none";
+        bt.innerHTML = "&#9658;";
+    }
+}
+
+/**
     Enables an element.
 */
 function enable(id) {
@@ -983,7 +1000,7 @@ function update_exp_settings() {
         html += "<td class='param'>Training iterations:</td><td><input class='value' name='iter' id='iter' value='" + settings[1] + "'></td>";
         html += "<td class='param'>Hidden layers:</td><td><input class='value' name='hidden' id='hidden' value='" + settings[0] + "'></td>";
         html += "<td class='param'>Learning rate:</td><td><input class='value' name='lr' id='lr' value='" + settings[2] + "'></td>";
-        html += "<td class='param' >Batch size:</td><td><input class='value' name='batch_size' id='batch_size' value='" + settings[3] + "'></td>";
+        html += "<td class='param' title='Batch size for batch training, or 0 for no batch training'>Batch size:</td><td><input class='value' name='batch_size' id='batch_size' value='" + settings[3] + "'></td>";
         html += "</tr><tr>";
         html += "<td class='param'>L2 regularization:</td><td><input class='value' name='L2' id='L2' value='" + settings[4] + "'></td>";
         html += "<td class='param'>Momentum:</td><td><input class='value' name='momentum' id='momentum' value='" + settings[5] + "'></td>";

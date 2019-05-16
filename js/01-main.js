@@ -257,6 +257,23 @@ function toggle(id) {
 }
 
 /**
+    Toggles visibility of the element with the specified id and updates 
+    expand arrow.
+*/
+function toggle_bt(id) {
+    let e = document.getElementById(id);
+    let bt = document.getElementById(id + "_bt");
+    if (e.style.display == "none") {
+        e.style.display = "block";
+        bt.innerHTML = "&#9660;";
+    }
+    else {
+        e.style.display = "none";
+        bt.innerHTML = "&#9658;";
+    }
+}
+
+/**
     Enables an element.
 */
 function enable(id) {

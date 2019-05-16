@@ -122,9 +122,12 @@
             <br>
             <table>
                 <tr>
-                    <th width="780" class="dark">Set Hyperparameters&nbsp;&nbsp;&nbsp;<span class="help" onclick="javascript:toggle('helphyper');">&nbsp;?&nbsp;</span></th>
+                    <th width="780" class="dark">
+                      <span width="30" id="hyper_bt" style="cursor:pointer;" onclick="javascript:toggle_bt('hyper');">&#9658;</span>&nbsp;&nbsp;
+                      Set Hyperparameters&nbsp;&nbsp;&nbsp;<span class="help" onclick="javascript:toggle('helphyper');">&nbsp;?&nbsp;</span>
+                    </th>
                 </tr>
-                <tr>
+                <tr id="hyper" style="display:none;">
                     <td id="opts"></td>
                 </tr>
             </table>
@@ -134,9 +137,13 @@
             <br>
             <table>
                 <tr>
-                    <th width="780" colspan="2" class="dark" title="">Data Pre-processing&nbsp;&nbsp;&nbsp;<span class="help" onclick="javascript:toggle('helppre');">&nbsp;?&nbsp;</span></th>
+                    <th width="780" colspan="2" class="dark" title="">
+                      <span width="30" id="pre_bt" style="cursor:pointer;" onclick="javascript:toggle_bt('pre');">&#9658;</span>&nbsp;&nbsp;
+                      Data Pre-processing&nbsp;&nbsp;&nbsp;<span class="help" onclick="javascript:toggle('helppre');">&nbsp;?&nbsp;</span>
+                    </th>
                 </tr>
-                <tr>
+                <tr id="pre" style="display:none;">
+                    <td><table><tr>
                     <td width="90">
                       Attributes:
                     </td>
@@ -160,6 +167,7 @@
                       <label for="shuffle-rnd" title="Data examples are randomly shuffled">Random</label>
                     </td>
                 </tr>
+              </table></td></tr>
             </table>
         </div>
 
@@ -375,6 +383,7 @@
 
         <div class="popup" id="helppre" style="display:none;">
           <div style='text-align:right;' width='100%'><span class='lred' onclick="toggle('helppre')">Close</span></div>
+          Click &#9658; to expand the Data Pre-processing section.
           <h3>Data normalization</h3>
           It is quite common that different attributes in the dataset have different range of values. The first attribute can for example
           have a range from 0 to 1, and the second from -5 to 100. This can lead to neural networks having problems convering to stable
@@ -442,6 +451,7 @@
 
         <div class="popup" id="helphyper" style="display:none;">
           <div style='text-align:right;' width='100%'><span class='lred' onclick="toggle('helphyper')">Close</span></div>
+          Click &#9658; to expand the Set Hyperparameters section.
           <h3>Hyperparameters</h3>
           Most machine learning algorithms can be tuned for different problems by modifying the values of the algorithm's hyperparameters.
           A hyperparameter is a model configuration and needs to be set before training the model.

@@ -52,7 +52,7 @@ class NaiveBayes {
                 p += Math.log(this.calc_probability(inst[a], e.mean[a], e.stdev[a]));
             }
 
-            e.prob = p;
+            e.prob = Math.exp(p);
         }
 
         // Return best label

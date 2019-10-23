@@ -186,6 +186,13 @@ span.lblue {
     font-weight: normal;
 }
 
+span.expheader {
+    color: #99070E;
+    font-weight: bold;
+    text-decoration: underline;
+    font-size: 14px;
+}
+
 span.lred {
     color: #f00;
     cursor: pointer;

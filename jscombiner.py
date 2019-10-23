@@ -52,4 +52,4 @@ def combine_files(files, output_path, filename, version):
 # Run combiner
 cwd = Path.cwd()
 files = scan_files(str(cwd) + "/js")
-combine_files(files, str(cwd), "webml", "0.39")
+combine_files(files, str(cwd), "webml", "0.40")

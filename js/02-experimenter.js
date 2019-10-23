@@ -118,7 +118,10 @@ async function run_experiment() {
         else if (eval_opt == "1") {
             // Separate data into training and test sets
             let split_data = data.train_test_split(0.2);
+            str += "<span class='expheader'>Test data</span><br><br>";
             str = experiment_result(split_data[0], split_data[1], cl, str);
+            str += "<br><span class='expheader'>Training data</span><br><br>";
+            str = experiment_result(split_data[0], split_data[0], cl, str);
         }
         else if (eval_opt == "2") {
             // 5-fold Cross-Validation

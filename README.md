@@ -5,9 +5,9 @@ Web ML Demonstrator is a machine learning demonstrator running purely on the cli
 
 ### Testing it
 
-[Experimenter](http://aiguy.org/webml/experimenter.html): A web application where you can upload datasets in csv format and run machine learning experiments on them.
+Experimenter: A web application where you can upload datasets in csv format and run machine learning experiments on them.
 
-[Visualizer](http://aiguy.org/webml/index.html): A web application where you can see visualizations of how different machine learning algorithms learn on a number of two-dimensional datasets.
+Visualizer: A web application where you can see visualizations of how different machine learning algorithms learn on a number of two-dimensional datasets.
 
 ### Running it locally
 Web ML Demonstrator runs entirely in the browser and doesn't need a web server. Just open the html files in a browser to run it locally.

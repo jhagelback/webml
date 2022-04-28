@@ -5,7 +5,7 @@ Web ML Demonstrator is a machine learning demonstrator running purely on the cli
 
 ### Testing it
 
-Experimenter: A web application where you can upload datasets in csv format and run machine learning experiments on them.
+[Experimenter|http://aiguy.freecluster.eu/webml/experimenter.html]: A web application where you can upload datasets in csv format and run machine learning experiments on them.
 
 Visualizer: A web application where you can see visualizations of how different machine learning algorithms learn on a number of two-dimensional datasets.
 
